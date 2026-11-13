@@ -1,6 +1,6 @@
 # Image Forgery Detection Using Error Level Analysis (ELA) and CNN
 
-This project builds an automated deep learning system to detect whether a digital image is **Authentic** or **Tampered** (forged/edited). Instead of relying on the human eye—which can easily be fooled by modern photo-editing tools—this pipeline uncovers invisible JPEG compression artifacts and analyzes them using a lightweight Convolutional Neural Network (CNN), 2D Fast Fourier Transform (FFT), and Grad-CAM explainability.
+Our project builds an automated deep learning system to detect whether a digital image is **Authentic** or **Tampered** (forged/edited). Instead of relying on the human eye—which can easily be fooled by modern photo-editing tools - this pipeline uncovers invisible JPEG compression artifacts and analyzes them using a lightweight Convolutional Neural Network (CNN), 2D Fast Fourier Transform (FFT), and Grad-CAM explainability.
 
 ---
 
@@ -32,14 +32,14 @@ This project builds an automated deep learning system to detect whether a digita
 To fairly train and evaluate our model without data leakage, the **9,501 preprocessed ELA images** were divided using a stratified **80% / 10% / 10%** split:
 
 * **Training Set (80% – 7,600 images):** Used by the CNN to learn patterns that separate authentic compression noise from tampering artifacts.
-* **Validation Set (10% – 950 images):** Used after every training epoch to monitor generalization, save the best weights (`ModelCheckpoint`), and stop training early if validation loss stopped improving (`EarlyStopping`).
+* **Validation Set (10% – 950 images):** Used after every training epoch to monitor generalization, save the best weights (`ModelCheckpoint`), and stop training early if validation loss stops improving (`EarlyStopping`).
 * **Test Set (10% – 951 images):** Kept completely unseen during training (744 Authentic and 207 Tampered images) to measure final real-world performance.
 
 ---
 
 ## 4. CNN Model Architecture & Training
 
-We designed a lightweight **Sequential Convolutional Neural Network (CNN)** tailored for 128 × 128 × 3 ELA inputs:
+We designed a lightweight **Sequential Convolutional Neural Network (CNN)**  for 128 × 128 × 3 ELA inputs:
 
 * **Feature Extraction Blocks:** Three convolutional layers with increasing filter sizes (**32 → 64 → 128** filters, `3×3` kernel, ReLU activation). Each block includes **Batch Normalization** (to stabilize learning) and **Max Pooling** (`2×2` to downsample spatial dimensions and capture broader patterns).
 * **Classification Head:** The extracted feature maps are passed through a `Flatten` layer, a `Dense(128)` fully connected layer, a **Dropout (0.5)** layer (which randomly turns off 50% of neurons during training to prevent overfitting), and a final `Dense(1)` **Sigmoid** output neuron that predicts a probability between `0` (Authentic) and `1` (Tampered).
@@ -51,7 +51,7 @@ We designed a lightweight **Sequential Convolutional Neural Network (CNN)** tail
 
 Evaluated on the **951 unseen test images** using the best saved model weights (`best_model.h5`):
 
-* **Test Accuracy:** The model achieved an accuracy of **94.95%** on the unseen test set. This indicates that the model correctly classified approximately **95 out of every 100 images** (903 out of 951) in the test set as either authentic or tampered.
+* **Test Accuracy:** Our model achieved an accuracy of **94.95%** on the unseen test set. This indicates that the model correctly classified approximately **95 out of every 100 images** (903 out of 951) in the test set as either authentic or tampered.
 * **Test Precision (Tampered):** The precision for the 'Tampered' class is **87.32%**. This means that when the model predicted an image was tampered, it was correct about 87.32% of the time (keeping false alarms low).
 * **Test Recall (Tampered):** The recall for the 'Tampered' class is **89.86%**. This indicates that the model successfully identified 89.86% of all actual tampered images in the test set.
 * **Test F1-Score (Tampered):** The F1-score for the 'Tampered' class is **0.89**, showing a strong balance between precision and recall despite the class imbalance.
@@ -79,10 +79,10 @@ The confusion matrix provides a detailed breakdown of correct and incorrect clas
 
 ## 7. Grad-CAM Explainability
 
-**What is Grad-CAM?** **Grad-CAM (Gradient-weighted Class Activation Mapping)** acts like a visual X-ray for a CNN. It inspects the gradients flowing into the final convolutional layer (`conv2d_2`) and produces a color heatmap showing **which regions of the image the model focused on** to make its decision.
+**What is Grad-CAM?** **Grad-CAM (Gradient-weighted Class Activation Mapping)** is like a visual X-ray for a CNN. It inspects the gradients flowing into the final convolutional layer (`conv2d_2`) and gives a color heatmap showing **which regions of the image the model focused on** to make its decision.
 
 **Why We Used Grad-CAM Here:**
-1. **To Build Trust Beyond Accuracy:** High accuracy alone does not prove a model is working properly—a CNN could potentially "cheat" by memorizing background textures. Grad-CAM opens the black box to verify what the model actually sees.
+1. **To Build Trust Beyond Accuracy:** High accuracy alone does not prove a model is working properly - a CNN could potentially "cheat" by memorizing background textures. Grad-CAM opens the black box to verify what the model actually sees.
 2. **Validating Authentic Predictions (`Score: 0.00`):** On authentic test images, the Grad-CAM heatmap remains faint and diffusely spread out, confirming that no normal object falsely triggered a tampering alert.
 3. **Diagnosing Tampered Predictions (`Score: 1.00`):** On spliced images, while ELA cleanly isolates the pasted object and the CNN predicts `Tampered (1.00)`, Grad-CAM shows activation spreading across the surrounding background contrast due to the `Flatten()` layer. This insight directly guides our future improvement of replacing `Flatten()` with `GlobalAveragePooling2D()` for tighter boundary localization.
 
