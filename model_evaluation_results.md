@@ -1,8 +1,4 @@
-# Model Evaluation & Visual Results Explained
-
-This document explains each of the four evaluation visuals generated from our test set (**951 unseen images**) in simple terms, making it easy to remember and present during a project review or viva.
-
----
+# Model Evaluation & Visual Results
 
 ## 1. What is the ROC-AUC Score & What Does the Graph Represent?
 
